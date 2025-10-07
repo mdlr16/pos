@@ -1,0 +1,58 @@
+[06-Aug-2025 00:23:17 UTC] PHP Fatal error:  Uncaught Error: Call to undefined method SecureRestaurantApi::getPaymentMethods() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php:1719
+Stack trace:
+#0 {main}
+  thrown in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php on line 1719
+[06-Aug-2025 00:50:02 UTC] PHP Fatal error:  Cannot redeclare SecureRestaurantApi::getPaymentMethods() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php on line 96
+[06-Aug-2025 00:50:07 UTC] PHP Fatal error:  Cannot redeclare SecureRestaurantApi::getPaymentMethods() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php on line 96
+[06-Aug-2025 00:50:19 UTC] PHP Fatal error:  Cannot redeclare SecureRestaurantApi::getPaymentMethods() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php on line 96
+[06-Aug-2025 00:50:23 UTC] PHP Fatal error:  Cannot redeclare SecureRestaurantApi::getPaymentMethods() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php on line 96
+[06-Aug-2025 00:50:23 UTC] PHP Fatal error:  Cannot redeclare SecureRestaurantApi::getPaymentMethods() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php on line 96
+[06-Aug-2025 00:50:44 UTC] PHP Fatal error:  Cannot redeclare SecureRestaurantApi::getPaymentMethods() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php on line 96
+[06-Aug-2025 00:50:44 UTC] PHP Fatal error:  Cannot redeclare SecureRestaurantApi::getPaymentMethods() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php on line 96
+[06-Aug-2025 00:50:44 UTC] PHP Fatal error:  Cannot redeclare SecureRestaurantApi::getPaymentMethods() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php on line 96
+[06-Aug-2025 00:50:44 UTC] PHP Fatal error:  Cannot redeclare SecureRestaurantApi::getPaymentMethods() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php on line 96
+[06-Aug-2025 00:50:54 UTC] PHP Fatal error:  Cannot redeclare SecureRestaurantApi::getPaymentMethods() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php on line 96
+[06-Aug-2025 00:50:54 UTC] PHP Fatal error:  Cannot redeclare SecureRestaurantApi::getPaymentMethods() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php on line 96
+[06-Aug-2025 00:50:54 UTC] PHP Fatal error:  Cannot redeclare SecureRestaurantApi::getPaymentMethods() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php on line 96
+[06-Aug-2025 00:50:55 UTC] PHP Fatal error:  Cannot redeclare SecureRestaurantApi::getPaymentMethods() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php on line 96
+[06-Aug-2025 00:50:55 UTC] PHP Fatal error:  Cannot redeclare SecureRestaurantApi::getPaymentMethods() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php on line 96
+[06-Aug-2025 00:50:55 UTC] PHP Fatal error:  Cannot redeclare SecureRestaurantApi::getPaymentMethods() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php on line 96
+[06-Aug-2025 00:50:55 UTC] PHP Fatal error:  Cannot redeclare SecureRestaurantApi::getPaymentMethods() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php on line 96
+[06-Aug-2025 00:56:44 UTC] PHP Fatal error:  Uncaught Error: Call to undefined method SecureRestaurantApi::hasPermission() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/endpoints/payments.php:257
+Stack trace:
+#0 /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php(96): PaymentsEndpoint->getPaymentMethods()
+#1 /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php(1760): SecureRestaurantApi->getPaymentMethods()
+#2 {main}
+  thrown in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/endpoints/payments.php on line 257
+[06-Aug-2025 01:11:19 UTC] PHP Fatal error:  Uncaught Error: Call to undefined method PDO::getPrefix() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/endpoints/payments.php:255
+Stack trace:
+#0 /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php(96): PaymentsEndpoint->getPaymentMethods()
+#1 /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php(1760): SecureRestaurantApi->getPaymentMethods()
+#2 {main}
+  thrown in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/endpoints/payments.php on line 255
+[06-Aug-2025 01:12:28 UTC] PHP Fatal error:  Uncaught Error: Call to undefined method SecureRestaurantApi::getCurrentUser() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/endpoints/payments.php:257
+Stack trace:
+#0 /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php(96): PaymentsEndpoint->getPaymentMethods()
+#1 /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php(1760): SecureRestaurantApi->getPaymentMethods()
+#2 {main}
+  thrown in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/endpoints/payments.php on line 257
+[20-Aug-2025 20:50:33 UTC] PHP Fatal error:  Uncaught Error: Call to undefined method PDO::selectOne() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/endpoints/payments.php:661
+Stack trace:
+#0 /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/endpoints/payments.php(43): PaymentsEndpoint->getInvoiceDetails('70')
+#1 /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php(88): PaymentsEndpoint->processPartialPayments('70')
+#2 /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php(1749): SecureRestaurantApi->processPartialPayments('70')
+#3 {main}
+  thrown in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/endpoints/payments.php on line 661
+[20-Aug-2025 20:50:34 UTC] PHP Fatal error:  Uncaught Error: Call to undefined method PDO::selectOne() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/endpoints/payments.php:661
+Stack trace:
+#0 /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/endpoints/payments.php(120): PaymentsEndpoint->getInvoiceDetails('70')
+#1 /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php(112): PaymentsEndpoint->getPaymentStatus('70')
+#2 /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php(1768): SecureRestaurantApi->getInvoicePaymentStatus('70')
+#3 {main}
+  thrown in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/endpoints/payments.php on line 661
+[20-Aug-2025 20:51:51 UTC] PHP Fatal error:  Uncaught Error: Call to undefined method SecureRestaurantApi::getCurrentUser() in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/endpoints/payments.php:257
+Stack trace:
+#0 /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php(96): PaymentsEndpoint->getPaymentMethods()
+#1 /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/index.php(1760): SecureRestaurantApi->getPaymentMethods()
+#2 {main}
+  thrown in /home/nubesiel/siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure/endpoints/payments.php on line 257

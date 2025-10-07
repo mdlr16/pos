@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Headers API SPOS</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4F46E5;
+            padding-bottom: 10px;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #e1e5e9;
+            border-radius: 6px;
+            background: #fafafa;
+        }
+        button {
+            background: #4F46E5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #3B37D1;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 11px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 5px;
+            width: 300px;
+        }
+        .config {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .logs {
+            height: 150px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug Headers API SPOS</h1>
+        
+        <div class="config">
+            <h3>⚙️ Configuración</h3>
+            <label>API Base URL:</label>
+            <input type="text" id="apiBase" value="https://siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure">
+            <br>
+            <label>Token API:</label>
+            <input type="text" id="apiToken" value="bf6366f9859b5d2c7522ae155e2d834157419421">
+            <br>
+            <p><strong>Nota:</strong> Primero sube el archivo debug_headers.php al servidor</p>
+        </div>
+
+        <div class="section">
+            <h3>🔍 Test 1: Debug de Headers</h3>
+            <p>Verifica qué headers llegan al servidor y cómo se detecta el token.</p>
+            <button onclick="testHeadersDebug()">Debug Headers</button>
+            <div id="debug-result"></div>
+        </div>
+
+        <div class="section">
+            <h3>🔑 Test 2: Diferentes Métodos de Autenticación</h3>
+            <p>Prueba diferentes formas de enviar el token de autenticación.</p>
+            <button onclick="testBearerToken()">Bearer Token</button>
+            <button onclick="testXApiKey()">X-API-Key Header</button>
+            <button onclick="testBothMethods()">Ambos Métodos</button>
+            <div id="auth-methods-result"></div>
+        </div>
+
+        <div class="section">
+            <h3>📋 Test 3: Endpoint Real con Token</h3>
+            <p>Prueba el endpoint real de layout con el método que funcione.</p>
+            <button onclick="testRealEndpoint()">Test Layout Endpoint</button>
+            <div id="real-endpoint-result"></div>
+        </div>
+
+        <div class="section">
+            <h3>📊 Log de Actividad</h3>
+            <button onclick="clearLogs()">Limpiar Logs</button>
+            <div class="logs" id="activity-logs"></div>
+        </div>
+    </div>
+
+    <script>
+        let logContainer;
+        
+        function init() {
+            logContainer = document.getElementById('activity-logs');
+            log('🔍 Debug de Headers iniciado');
+            log('📍 Origen: ' + window.location.origin);
+        }
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}\n`;
+            logContainer.textContent += logEntry;
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function clearLogs() {
+            logContainer.textContent = '';
+            log('🗑️ Logs limpiados');
+        }
+
+        function getConfig() {
+            return {
+                apiBase: document.getElementById('apiBase').value.trim(),
+                token: document.getElementById('apiToken').value.trim()
+            };
+        }
+
+        function showResult(containerId, type, content) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `<div class="result ${type}">${content}</div>`;
+        }
+
+        async function testHeadersDebug() {
+            log('🔍 Iniciando debug de headers...');
+            const config = getConfig();
+            
+            try {
+                const url = `${config.apiBase}/debug_headers.php`;
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${config.token}`,
+                        'X-API-Key': config.token,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    mode: 'cors'
+                });
+
+                const responseText = await response.text();
+                log(`📡 Debug Response: ${response.status}`);
+
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (e) {
+                    result = { raw: responseText, parseError: e.message };
+                }
+
+                if (response.ok && result.auth_token_search) {
+                    const tokenFound = result.auth_token_search.found_token;
+                    const tokenSource = result.auth_token_search.source;
+                    const tokenValid = result.token_validation?.status === 'VALID';
+
+                    let status = 'info';
+                    let summary = '';
+
+                    if (tokenFound && tokenValid) {
+                        status = 'success';
+                        summary = `✅ TOKEN DETECTADO Y VÁLIDO!\n\nToken: ${tokenFound}\nFuente: ${tokenSource}\nUsuario: ${result.token_validation.user_login}\n\n`;
+                    } else if (tokenFound && !tokenValid) {
+                        status = 'error';
+                        summary = `⚠️ TOKEN DETECTADO PERO INVÁLIDO\n\nToken: ${tokenFound}\nFuente: ${tokenSource}\nProblema: ${result.token_validation.message}\n\n`;
+                    } else {
+                        status = 'error';
+                        summary = `❌ TOKEN NO DETECTADO\n\nNingún método pudo encontrar el token\n\n`;
+                    }
+
+                    showResult('debug-result', status, 
+                        summary + `DEBUG COMPLETO:\n${JSON.stringify(result, null, 2)}`
+                    );
+
+                    if (tokenFound && tokenValid) {
+                        log('✅ Headers debug: Token detectado y válido');
+                    } else {
+                        log('❌ Headers debug: Problema con el token');
+                    }
+
+                } else {
+                    showResult('debug-result', 'error',
+                        `❌ ERROR EN DEBUG\n\nStatus: ${response.status}\nResponse: ${JSON.stringify(result, null, 2)}`
+                    );
+                    log('❌ Error en debug de headers');
+                }
+
+            } catch (error) {
+                showResult('debug-result', 'error',
+                    `❌ ERROR DE CONEXIÓN\n\nError: ${error.message}\n\n` +
+                    `Verificar que debug_headers.php esté subido al servidor`
+                );
+                log(`❌ Error: ${error.message}`);
+            }
+        }
+
+        async function testBearerToken() {
+            log('🔑 Test Bearer Token...');
+            const config = getConfig();
+            
+            try {
+                const url = `${config.apiBase}/debug_headers.php`;
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${config.token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    mode: 'cors'
+                });
+
+                const result = await response.json();
+                
+                if (result.auth_token_search.found_token) {
+                    showResult('auth-methods-result', 'success',
+                        `✅ BEARER TOKEN FUNCIONA!\n\n` +
+                        `Token detectado: ${result.auth_token_search.found_token}\n` +
+                        `Método: ${result.auth_token_search.source}\n` +
+                        `Validación: ${result.token_validation.status}`
+                    );
+                    log('✅ Bearer Token detectado');
+                } else {
+                    showResult('auth-methods-result', 'error',
+                        `❌ BEARER TOKEN NO DETECTADO\n\n` +
+                        `Intentos: ${JSON.stringify(result.auth_token_search.attempts, null, 2)}`
+                    );
+                    log('❌ Bearer Token NO detectado');
+                }
+
+            } catch (error) {
+                showResult('auth-methods-result', 'error', `❌ Error: ${error.message}`);
+                log(`❌ Error Bearer: ${error.message}`);
+            }
+        }
+
+        async function testXApiKey() {
+            log('🗝️ Test X-API-Key...');
+            const config = getConfig();
+            
+            try {
+                const url = `${config.apiBase}/debug_headers.php`;
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'X-API-Key': config.token,
+                        'Content-Type': 'application/json'
+                    },
+                    mode: 'cors'
+                });
+
+                const result = await response.json();
+                
+                if (result.auth_token_search.found_token) {
+                    showResult('auth-methods-result', 'success',
+                        `✅ X-API-KEY FUNCIONA!\n\n` +
+                        `Token detectado: ${result.auth_token_search.found_token}\n` +
+                        `Método: ${result.auth_token_search.source}\n` +
+                        `Validación: ${result.token_validation.status}`
+                    );
+                    log('✅ X-API-Key detectado');
+                } else {
+                    showResult('auth-methods-result', 'error',
+                        `❌ X-API-KEY NO DETECTADO\n\n` +
+                        `Intentos: ${JSON.stringify(result.auth_token_search.attempts, null, 2)}`
+                    );
+                    log('❌ X-API-Key NO detectado');
+                }
+
+            } catch (error) {
+                showResult('auth-methods-result', 'error', `❌ Error: ${error.message}`);
+                log(`❌ Error X-API-Key: ${error.message}`);
+            }
+        }
+
+        async function testBothMethods() {
+            log('🔑🗝️ Test ambos métodos...');
+            const config = getConfig();
+            
+            try {
+                const url = `${config.apiBase}/debug_headers.php`;
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${config.token}`,
+                        'X-API-Key': config.token,
+                        'Content-Type': 'application/json'
+                    },
+                    mode: 'cors'
+                });
+
+                const result = await response.json();
+                
+                showResult('auth-methods-result', 'info',
+                    `🔍 ANÁLISIS DE AMBOS MÉTODOS:\n\n` +
+                    `Token encontrado: ${result.auth_token_search.found_token || 'NO'}\n` +
+                    `Método usado: ${result.auth_token_search.source}\n` +
+                    `Validación: ${result.token_validation.status}\n\n` +
+                    `Todos los intentos:\n${JSON.stringify(result.auth_token_search.attempts, null, 2)}\n\n` +
+                    `Info del servidor:\n${JSON.stringify(result.server_info, null, 2)}`
+                );
+                
+                log('🔍 Análisis completo realizado');
+
+            } catch (error) {
+                showResult('auth-methods-result', 'error', `❌ Error: ${error.message}`);
+                log(`❌ Error análisis: ${error.message}`);
+            }
+        }
+
+        async function testRealEndpoint() {
+            log('📋 Test endpoint real de layout...');
+            const config = getConfig();
+            
+            try {
+                // Primero verificar qué método funciona
+                const debugResponse = await fetch(`${config.apiBase}/debug_headers.php`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${config.token}`,
+                        'X-API-Key': config.token,
+                        'Content-Type': 'application/json'
+                    },
+                    mode: 'cors'
+                });
+
+                const debugResult = await debugResponse.json();
+                
+                if (!debugResult.auth_token_search.found_token) {
+                    showResult('real-endpoint-result', 'error',
+                        `❌ NO SE PUEDE AUTENTICAR\n\n` +
+                        `El token no se detecta con ningún método.\n` +
+                        `Ejecutar primero el debug de headers.`
+                    );
+                    return;
+                }
+
+                // Usar el método que funcione
+                const workingMethod = debugResult.auth_token_search.source;
+                log(`📡 Usando método que funciona: ${workingMethod}`);
+
+                let headers = { 'Content-Type': 'application/json' };
+                
+                if (workingMethod.includes('X-API-Key') || workingMethod.includes('X_API_KEY')) {
+                    headers['X-API-Key'] = config.token;
+                    log('🗝️ Usando X-API-Key');
+                } else {
+                    headers['Authorization'] = `Bearer ${config.token}`;
+                    log('🔑 Usando Bearer Token');
+                }
+
+                // Probar endpoint real
+                const layoutResponse = await fetch(`${config.apiBase}/layout/1`, {
+                    method: 'GET',
+                    headers: headers,
+                    mode: 'cors'
+                });
+
+                const layoutResponseText = await layoutResponse.text();
+                let layoutResult;
+                
+                try {
+                    layoutResult = JSON.parse(layoutResponseText);
+                } catch (e) {
+                    layoutResult = { raw: layoutResponseText };
+                }
+
+                if (layoutResponse.ok) {
+                    showResult('real-endpoint-result', 'success',
+                        `✅ ENDPOINT REAL FUNCIONA!\n\n` +
+                        `Método de auth: ${workingMethod}\n` +
+                        `Layout encontrado: ${layoutResult.name || 'Sin nombre'}\n` +
+                        `ID: ${layoutResult.rowid}\n` +
+                        `Entity: ${layoutResult.entity}\n\n` +
+                        `Response completa:\n${JSON.stringify(layoutResult, null, 2)}`
+                    );
+                    log('✅ Endpoint real funcionando');
+                } else if (layoutResponse.status === 404) {
+                    showResult('real-endpoint-result', 'info',
+                        `ℹ️ AUTENTICACIÓN OK, LAYOUT NO ENCONTRADO\n\n` +
+                        `La autenticación funciona pero no hay layout para entity 1.\n` +
+                        `Status: ${layoutResponse.status}\n` +
+                        `Error: ${layoutResult.error || 'Layout not found'}`
+                    );
+                    log('ℹ️ Auth OK, layout no encontrado (esperado)');
+                } else {
+                    showResult('real-endpoint-result', 'error',
+                        `❌ ERROR EN ENDPOINT REAL\n\n` +
+                        `Status: ${layoutResponse.status}\n` +
+                        `Response: ${JSON.stringify(layoutResult, null, 2)}`
+                    );
+                    log('❌ Error en endpoint real');
+                }
+
+            } catch (error) {
+                showResult('real-endpoint-result', 'error', `❌ Error: ${error.message}`);
+                log(`❌ Error endpoint real: ${error.message}`);
+            }
+        }
+
+        // Inicializar cuando la página carga
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

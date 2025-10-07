@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Upload API SPOS</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4F46E5;
+            padding-bottom: 10px;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #e1e5e9;
+            border-radius: 6px;
+            background: #fafafa;
+        }
+        button {
+            background: #4F46E5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #3B37D1;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 11px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        input, select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 5px;
+            width: 300px;
+        }
+        .config {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .logs {
+            height: 150px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 11px;
+        }
+        .file-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px dashed #ddd;
+            border-radius: 6px;
+            text-align: center;
+            background: #fafafa;
+        }
+        .preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📤 Test Upload de Imágenes - API SPOS</h1>
+        
+        <div class="config">
+            <h3>⚙️ Configuración</h3>
+            <label>API Base URL:</label>
+            <input type="text" id="apiBase" value="https://siel.nubesiel.top/custom/pos/frontend/api_spos_restaurant_secure">
+            <br>
+            <label>Token API:</label>
+            <input type="text" id="apiToken" value="bf6366f9859b5d2c7522ae155e2d834157419421">
+            <br>
+            <label>Layout ID:</label>
+            <input type="number" id="layoutId" value="1">
+        </div>
+
+        <div class="section">
+            <h3>📁 Paso 1: Seleccionar Imagen</h3>
+            <p>Selecciona una imagen para probar el upload.</p>
+            <div class="file-input">
+                <input type="file" id="imageFile" accept="image/*" onchange="previewImage()">
+                <p>Arrastra una imagen aquí o haz clic para seleccionar</p>
+                <p><small>Tipos soportados: JPEG, PNG, GIF | Máximo: 5MB</small></p>
+            </div>
+            <img id="preview" class="preview" style="display: none;">
+            <div id="file-info"></div>
+        </div>
+
+        <div class="section">
+            <h3>📤 Paso 2: Test de Upload</h3>
+            <p>Prueba el upload con diferentes métodos para identificar el problema.</p>
+            <button onclick="testUpload()" id="uploadBtn" disabled>Upload Imagen</button>
+            <button onclick="testWithSimpleForm()">Test Formulario Simple</button>
+            <button onclick="diagnoseUpload()">Diagnosticar Upload</button>
+            <div id="upload-result"></div>
+        </div>
+
+        <div class="section">
+            <h3>🔍 Paso 3: Verificar Resultado</h3>
+            <button onclick="checkUploadedImage()">Verificar Imagen Subida</button>
+            <div id="verify-result"></div>
+        </div>
+
+        <div class="section">
+            <h3>📊 Log de Actividad</h3>
+            <button onclick="clearLogs()">Limpiar Logs</button>
+            <div class="logs" id="activity-logs"></div>
+        </div>
+    </div>
+
+    <script>
+        let logContainer;
+        let selectedFile = null;
+        
+        function init() {
+            logContainer = document.getElementById('activity-logs');
+            log('📤 Test Upload iniciado');
+        }
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}\n`;
+            logContainer.textContent += logEntry;
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function clearLogs() {
+            logContainer.textContent = '';
+            log('🗑️ Logs limpiados');
+        }
+
+        function getConfig() {
+            return {
+                apiBase: document.getElementById('apiBase').value.trim(),
+                token: document.getElementById('apiToken').value.trim(),
+                layoutId: document.getElementById('layoutId').value
+            };
+        }
+
+        function showResult(containerId, type, content) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `<div class="result ${type}">${content}</div>`;
+        }
+
+        function previewImage() {
+            const fileInput = document.getElementById('imageFile');
+            const preview = document.getElementById('preview');
+            const fileInfo = document.getElementById('file-info');
+            const uploadBtn = document.getElementById('uploadBtn');
+            
+            if (fileInput.files && fileInput.files[0]) {
+                selectedFile = fileInput.files[0];
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(selectedFile);
+                
+                // Mostrar info del archivo
+                const sizeInMB = (selectedFile.size / 1024 / 1024).toFixed(2);
+                fileInfo.innerHTML = `
+                    <div class="result info">
+                        📄 Archivo seleccionado:
+                        Nombre: ${selectedFile.name}
+                        Tipo: ${selectedFile.type}
+                        Tamaño: ${sizeInMB} MB
+                        Última modificación: ${new Date(selectedFile.lastModified).toLocaleString()}
+                    </div>
+                `;
+                
+                uploadBtn.disabled = false;
+                log(`📁 Imagen seleccionada: ${selectedFile.name} (${sizeInMB}MB)`);
+            }
+        }
+
+        async function testUpload() {
+            if (!selectedFile) {
+                showResult('upload-result', 'error', '❌ No hay archivo seleccionado');
+                return;
+            }
+
+            log('📤 Iniciando test de upload...');
+            const config = getConfig();
+            
+            try {
+                const formData = new FormData();
+                formData.append('image', selectedFile);
+                formData.append('layout_id', config.layoutId);
+                formData.append('entity', '1');
+                
+                log(`📋 FormData preparado: layout_id=${config.layoutId}, entity=1`);
+                log(`🔑 Usando X-API-Key: ${config.token.substring(0, 10)}...`);
+                
+                const response = await fetch(`${config.apiBase}/upload-image`, {
+                    method: 'POST',
+                    headers: {
+                        'X-API-Key': config.token
+                        // NO incluir Content-Type para FormData
+                    },
+                    body: formData
+                });
+
+                log(`📡 Response: ${response.status} ${response.statusText}`);
+
+                const responseText = await response.text();
+                log(`📄 Response Body: ${responseText.substring(0, 500)}...`);
+
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (e) {
+                    result = { raw: responseText, parseError: e.message };
+                }
+
+                if (response.ok && result.success) {
+                    showResult('upload-result', 'success',
+                        `✅ UPLOAD EXITOSO!\n\n` +
+                        `Archivo: ${result.filename}\n` +
+                        `Path: ${result.image_path}\n` +
+                        `URL: ${result.full_url}\n` +
+                        `Tamaño: ${result.file_size} bytes\n\n` +
+                        `La imagen se subió correctamente al servidor.`
+                    );
+                    log('✅ Upload exitoso');
+                } else {
+                    showResult('upload-result', 'error',
+                        `❌ UPLOAD FALLÓ\n\n` +
+                        `Status: ${response.status}\n` +
+                        `Error: ${result.error || 'Unknown'}\n\n` +
+                        `Response:\n${JSON.stringify(result, null, 2)}`
+                    );
+                    log('❌ Upload falló');
+                }
+
+            } catch (error) {
+                showResult('upload-result', 'error',
+                    `❌ ERROR DE CONEXIÓN\n\n` +
+                    `Error: ${error.message}`
+                );
+                log(`❌ Error: ${error.message}`);
+            }
+        }
+
+        async function testWithSimpleForm() {
+            if (!selectedFile) {
+                showResult('upload-result', 'error', '❌ No hay archivo seleccionado');
+                return;
+            }
+
+            log('📤 Test con formulario simple...');
+            const config = getConfig();
+            
+            // Crear formulario HTML simple
+            const form = document.createElement('form');
+            form.style.display = 'none';
+            form.method = 'POST';
+            form.action = `${config.apiBase}/upload-image`;
+            form.enctype = 'multipart/form-data';
+            
+            // Agregar campos
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.name = 'image';
+            fileInput.files = document.getElementById('imageFile').files;
+            
+            const layoutInput = document.createElement('input');
+            layoutInput.type = 'hidden';
+            layoutInput.name = 'layout_id';
+            layoutInput.value = config.layoutId;
+            
+            const entityInput = document.createElement('input');
+            entityInput.type = 'hidden';
+            entityInput.name = 'entity';
+            entityInput.value = '1';
+            
+            form.appendChild(fileInput);
+            form.appendChild(layoutInput);
+            form.appendChild(entityInput);
+            document.body.appendChild(form);
+            
+            showResult('upload-result', 'info',
+                `ℹ️ FORMULARIO SIMPLE CREADO\n\n` +
+                `Nota: Este método abrirá una nueva pestaña.\n` +
+                `No incluye X-API-Key header, puede fallar la autenticación.\n` +
+                `Útil para debug de FormData.`
+            );
+            
+            log('📝 Formulario HTML creado - se abrirá en nueva pestaña');
+            
+            // Abrir en nueva pestaña
+            form.target = '_blank';
+            form.submit();
+            
+            // Limpiar
+            document.body.removeChild(form);
+        }
+
+        async function diagnoseUpload() {
+            log('🔍 Diagnosticando capacidades de upload...');
+            const config = getConfig();
+            
+            try {
+                // Test 1: Verificar endpoint sin archivo
+                log('📡 Test 1: Verificar endpoint upload-image...');
+                const emptyResponse = await fetch(`${config.apiBase}/upload-image`, {
+                    method: 'POST',
+                    headers: {
+                        'X-API-Key': config.token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+                
+                const emptyResult = await emptyResponse.text();
+                log(`📄 Respuesta sin archivo: ${emptyResponse.status} - ${emptyResult.substring(0, 200)}`);
+                
+                // Test 2: Verificar que el layout existe
+                log('📡 Test 2: Verificar que el layout existe...');
+                const layoutResponse = await fetch(`${config.apiBase}/layout/${config.layoutId}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-API-Key': config.token
+                    }
+                });
+                
+                const layoutExists = layoutResponse.ok;
+                log(`📋 Layout ${config.layoutId} existe: ${layoutExists ? 'SÍ' : 'NO'}`);
+                
+                // Test 3: Crear un FormData básico de prueba
+                log('📡 Test 3: FormData básico...');
+                const testFormData = new FormData();
+                testFormData.append('test', 'value');
+                testFormData.append('layout_id', config.layoutId);
+                
+                showResult('upload-result', 'info',
+                    `🔍 DIAGNÓSTICO COMPLETO\n\n` +
+                    `Test 1 - Endpoint upload-image: ${emptyResponse.status}\n` +
+                    `Test 2 - Layout ${config.layoutId} existe: ${layoutExists ? 'SÍ' : 'NO'}\n` +
+                    `Test 3 - FormData test realizado\n\n` +
+                    `${layoutExists ? '✅' : '❌'} Layout válido\n` +
+                    `${emptyResponse.status === 400 ? '✅' : '❌'} Endpoint responde\n\n` +
+                    `Revisa los logs para más detalles.`
+                );
+                
+                log('✅ Diagnóstico completado');
+
+            } catch (error) {
+                showResult('upload-result', 'error',
+                    `❌ ERROR EN DIAGNÓSTICO\n\n${error.message}`
+                );
+                log(`❌ Error diagnóstico: ${error.message}`);
+            }
+        }
+
+        async function checkUploadedImage() {
+            log('🔍 Verificando imagen subida...');
+            const config = getConfig();
+            
+            try {
+                // Obtener info del layout para ver si tiene imagen
+                const response = await fetch(`${config.apiBase}/layout/${config.layoutId}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-API-Key': config.token
+                    }
+                });
+
+                if (response.ok) {
+                    const layout = await response.json();
+                    
+                    if (layout.background_image) {
+                        const imageUrl = `https://siel.nubesiel.top/${layout.background_image}`;
+                        
+                        // Verificar si la imagen es accesible
+                        const imageResponse = await fetch(imageUrl, { method: 'HEAD' });
+                        
+                        showResult('verify-result', 'success',
+                            `✅ IMAGEN ENCONTRADA\n\n` +
+                            `Layout: ${layout.name}\n` +
+                            `Imagen: ${layout.background_image}\n` +
+                            `URL: ${imageUrl}\n` +
+                            `Accesible: ${imageResponse.ok ? 'SÍ' : 'NO'}\n` +
+                            `Status: ${imageResponse.status}\n\n` +
+                            `La imagen está registrada en la base de datos.`
+                        );
+                        
+                        log('✅ Imagen verificada');
+                    } else {
+                        showResult('verify-result', 'info',
+                            `ℹ️ SIN IMAGEN\n\n` +
+                            `El layout ${config.layoutId} no tiene imagen de fondo configurada.\n` +
+                            `Esto es normal si no se ha subido ninguna imagen.`
+                        );
+                        log('ℹ️ Layout sin imagen');
+                    }
+                } else {
+                    showResult('verify-result', 'error',
+                        `❌ NO SE PUDO VERIFICAR\n\n` +
+                        `Status: ${response.status}\n` +
+                        `No se pudo obtener información del layout.`
+                    );
+                    log('❌ Error verificando layout');
+                }
+
+            } catch (error) {
+                showResult('verify-result', 'error',
+                    `❌ ERROR DE VERIFICACIÓN\n\n${error.message}`
+                );
+                log(`❌ Error: ${error.message}`);
+            }
+        }
+
+        // Inicializar cuando la página carga
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

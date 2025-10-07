@@ -2576,7 +2576,54 @@ export const testPosApiMigration = async (variables, terminal) => {
  */
 
 
+// Procesar varios pagos para una misma factura
+export const processInvoicePayments = async ({ variables, invoiceId, payments, apiKey }) => {
+  const SECURE_API_BASE = `${variables.SPOS_URL}/custom/pos/frontend/api_spos_restaurant_secure`;
+  const endpoint = `${SECURE_API_BASE}/payments/invoice/${invoiceId}/partial`;
 
+  // Adaptar los datos a la estructura esperada por el backend
+  const paymentData = payments.map(p => ({
+    amount: Number(p.amount),
+    method: p.method,
+    idTipop: p.idTipop ?? null,
+    idBank: p.idBank ?? null,
+    comment: p.comment ?? null,
+    reference: p.reference ?? null
+  }));
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-API-Key': apiKey
+      },
+      body: JSON.stringify({ payments: paymentData })
+    });
+
+    const json = await res.json();
+    if (!res.ok || json.success === false) {
+      throw new Error(json.error || 'Error registrando pagos');
+    }
+
+    const processed = json.processed_payments || json.payments || [];
+    return {
+      success: true,
+      invoiceId: json.invoice_id || invoiceId,
+      processedPayments: processed,
+      totalProcessed: processed.reduce((sum, p) => sum + Number(p.amount || 0), 0),
+      message: json.message || 'Pagos registrados correctamente'
+    };
+  } catch (err) {
+    // En caso de fallo, ejecutar la rutina de respaldo (secuencial) o emitir error
+    console.error(err);
+    return await processInvoicePaymentsSequential({ invoiceId, payments, apiKey });
+  }
+};
+
+
+/*
 export const processInvoicePayments = async (variables, invoiceId, payments) => {
   console.log('🍽️ PROCESANDO PAGOS CON URLS EXACTAS DE TU INDEX.PHP...');
   console.log('📋 Factura ID:', invoiceId);
@@ -2703,7 +2750,7 @@ export const processInvoicePayments = async (variables, invoiceId, payments) => 
     }
   }
 };
-
+*/ 
 
 
 
